@@ -112,6 +112,14 @@ export class OfflineSyncService {
   getPendingCount(): number {
     return this.syncQueue.length;
   }
+
+  async retryFailed(): Promise<SyncResult[]> {
+    const failed = this.syncQueue.filter(item => item.attempts > 0);
+    // Reset attempts before retrying
+    failed.forEach(item => item.attempts = 0);
+    await this.saveQueue();
+    return this.sync();
+  }
 }
 
 interface SyncItem {
